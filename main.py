@@ -87,3 +87,8 @@ def update_car(id: int, car: Car):
     response = {}
     response[id] = cars[id]
     return response
+
+
+@app.delete("/cars/{id}")
+def delete_car(id: int):
+    del cars[id]
