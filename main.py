@@ -1,7 +1,8 @@
-from fastapi import FastAPI, Path
+from fastapi import FastAPI, Path, Body
 from pydantic import BaseModel
 from typing import Optional, List
 from database import cars
+from fastapi.encoders import jsonable_encoder
 
 # Car model
 class Car(BaseModel):
@@ -68,3 +69,21 @@ def add_cars(adding_cars: List[Car]):
 
 
 
+@app.put("/cars/{id}")
+def update_car(id: int, car: Car):
+    # get the car details for ID given
+    retrieved_car = cars.get(id)
+    # retrieved_car will contain car details in dict format
+    # Convert it to pydantic model
+    # take the dict version from DB, unpack it and put it into Car
+    # and create a new pydantic model to assign it to retrieved_car
+    retrieved_car = Car(**retrieved_car)
+    # Convert pydantic model into dict
+    updated_car_details = car.dict()
+    # Replace the new values old values
+    updated_car_details = retrieved_car.copy(update=updated_car_details)
+    # send it back to DB in JSON format. Import jsonable_encoder from fastapi.encoders
+    cars[id] = jsonable_encoder(updated_car_details)
+    response = {}
+    response[id] = cars[id]
+    return response
